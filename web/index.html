@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebFly - Aggressive Web Reconnaissance</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>WebFly</h1>
+                <span class="version">v1.0.0</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-section="scanner">
+                    <span class="icon">🔍</span>
+                    <span>Scanner</span>
+                </a>
+                <a href="#" class="nav-item" data-section="graph">
+                    <span class="icon">🕸️</span>
+                    <span>Node Graph</span>
+                </a>
+                <a href="#" class="nav-item" data-section="results">
+                    <span class="icon">📊</span>
+                    <span>Results</span>
+                </a>
+                <a href="#" class="nav-item" data-section="vulns">
+                    <span class="icon">⚠️</span>
+                    <span>Vulnerabilities</span>
+                </a>
+                <a href="#" class="nav-item" data-section="exploit">
+                    <span class="icon">💥</span>
+                    <span>Exploitation</span>
+                </a>
+                <a href="#" class="nav-item" data-section="reports">
+                    <span class="icon">📄</span>
+                    <span>Reports</span>
+                </a>
+            </nav>
+            
+            <div class="credits">
+                <p>Created by</p>
+                <p class="authors">Anonymous-beta<br>&<br>Victor410fer</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Scanner Section -->
+            <section id="scanner" class="section active">
+                <header class="section-header">
+                    <h2>Target Scanner</h2>
+                    <p>Configure and launch aggressive web reconnaissance</p>
+                </header>
+                
+                <div class="scan-form">
+                    <div class="form-group">
+                        <label>Target URL</label>
+                        <input type="url" id="target-url" placeholder="https://example.com" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Threads</label>
+                            <input type="number" id="threads" value="50" min="1" max="200">
+                        </div>
+                        <div class="form-group">
+                            <label>Timeout (s)</label>
+                            <input type="number" id="timeout" value="10" min="1" max="60">
+                        </div>
+                        <div class="form-group">
+                            <label>Max Depth</label>
+                            <input type="number" id="max-depth" value="3" min="1" max="10">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Extensions</label>
+                            <input type="text" id="extensions" placeholder=".php,.html,.js,.txt">
+                        </div>
+                        <div class="form-group">
+                            <label>Status Codes</label>
+                            <input type="text" id="status-codes" value="200,204,301,302,307,401,403,405,500">
+                        </div>
+                    </div>
+                    
+                    <div class="form-checkboxes">
+                        <label class="checkbox">
+                            <input type="checkbox" id="recursive" checked>
+                            <span>Recursive</span>
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" id="follow-redirects" checked>
+                            <span>Follow Redirects</span>
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" id="crawl-enabled">
+                            <span>Smart Crawler</span>
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" id="vuln-scan-enabled">
+                            <span>Vulnerability Scan</span>
+                        </label>
+                        <label class="checkbox">
+                            <input type="checkbox" id="exploit-enabled">
+                            <span>Enable Exploitation</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button id="start-scan" class="btn btn-primary">
+                            <span class="icon">🚀</span> Start Scan
+                        </button>
+                        <button id="stop-scan" class="btn btn-danger" disabled>
+                            <span class="icon">⏹️</span> Stop
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Live Stats -->
+                <div class="live-stats" id="live-stats" style="display: none;">
+                    <div class="stat-box">
+                        <span class="stat-label">Tested</span>
+                        <span class="stat-value" id="stat-tested">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Found</span>
+                        <span class="stat-value" id="stat-found">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Errors</span>
+                        <span class="stat-value" id="stat-errors">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Speed</span>
+                        <span class="stat-value" id="stat-speed">0 req/s</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                
+                <!-- Live Results -->
+                <div class="live-results" id="live-results" style="display: none;">
+                    <h3>Live Results</h3>
+                    <div class="results-table-container">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>URL</th>
+                                    <th>Size</th>
+                                    <th>Title</th>
+                                    <th>Type</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Graph Section -->
+            <section id="graph" class="section">
+                <header class="section-header">
+                    <h2>Node Graph Visualization</h2>
+                    <p>Interactive force-directed graph of discovered structure</p>
+                </header>
+                
+                <div class="graph-controls">
+                    <button class="btn btn-small" id="reset-graph">Reset View</button>
+                    <button class="btn btn-small" id="toggle-labels">Toggle Labels</button>
+                    <div class="graph-legend">
+                        <span class="legend-item"><span class="dot root"></span> Root</span>
+                        <span class="legend-item"><span class="dot directory"></span> Directory</span>
+                        <span class="legend-item"><span class="dot file"></span> File</span>
+                        <span class="legend-item"><span class="dot interesting"></span> Interesting</span>
+                        <span class="legend-item"><span class="dot protected"></span> Protected</span>
+                        <span class="legend-item"><span class="dot redirect"></span> Redirect</span>
+                        <span class="legend-item"><span class="dot error"></span> Error</span>
+                    </div>
+                </div>
+                
+                <div id="graph-container" class="graph-container">
+                    <div class="graph-placeholder">
+                        <p>Start a scan to visualize the target structure</p>
+                    </div>
+                </div>
+                
+                <div class="node-details" id="node-details" style="display: none;">
+                    <h4>Node Details</h4>
+                    <div class="detail-content" id="detail-content"></div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="results" class="section">
+                <header class="section-header">
+                    <h2>Scan Results</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-small" id="export-json">Export JSON</button>
+                        <button class="btn btn-small" id="export-csv">Export CSV</button>
+                        <button class="btn btn-small" id="export-html">Export HTML</button>
+                    </div>
+                </header>
+                
+                <div class="filters">
+                    <input type="text" id="filter-url" placeholder="Filter by URL...">
+                    <select id="filter-status">
+                        <option value="">All Status</option>
+                        <option value="200">200 OK</option>
+                        <option value="301">301 Redirect</option>
+                        <option value="302">302 Found</option>
+                        <option value="401">401 Unauthorized</option>
+                        <option value="403">403 Forbidden</option>
+                        <option value="500">500 Error</option>
+                    </select>
+                    <select id="filter-type">
+                        <option value="">All Types</option>
+                        <option value="directory">Directory</option>
+                        <option value="file">File</option>
+                        <option value="interesting">Interesting</option>
+                    </select>
+                </div>
+                
+                <div class="results-full" id="results-full">
+                    <p class="empty-state">No scan results yet. Start a scan to see results here.</p>
+                </div>
+            </section>
+
+            <!-- Vulnerabilities Section -->
+            <section id="vulns" class="section">
+                <header class="section-header">
+                    <h2>Vulnerabilities</h2>
+                    <p>Discovered security vulnerabilities</p>
+                </header>
+                
+                <div class="vuln-list" id="vuln-list">
+                    <p class="empty-state">No vulnerabilities scanned yet.</p>
+                </div>
+            </section>
+
+            <!-- Exploitation Section -->
+            <section id="exploit" class="section">
+                <header class="section-header">
+                    <h2>Exploitation</h2>
+                    <p>Exploit discovered vulnerabilities</p>
+                </header>
+                
+                <div class="exploit-panel" id="exploit-panel">
+                    <p class="empty-state">No vulnerabilities to exploit. Run a vulnerability scan first.</p>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports" class="section">
+                <header class="section-header">
+                    <h2>Reports</h2>
+                    <p>Generate and download scan reports</p>
+                </header>
+                
+                <div class="report-options">
+                    <div class="form-group">
+                        <label>Report Format</label>
+                        <select id="report-format">
+                            <option value="html">HTML Report</option>
+                            <option value="json">JSON Report</option>
+                            <option value="csv">CSV Export</option>
+                            <option value="txt">Text Report</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="generate-report">
+                        <span class="icon">📄</span> Generate Report
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/graph.js"></script>
+    <script src="/static/js/scanner.js"></script>
+    <script src="/static/js/exploiter.js"></script>
+</body>
+</html>
