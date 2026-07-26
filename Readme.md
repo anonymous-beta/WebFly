@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.png" alt="WebFly Logo" width="400">
+  <img src="image-1.jpg" alt="WebFly Logo" width="400">
 </p>
 
 <h1 align="center">WebFly</h1>
